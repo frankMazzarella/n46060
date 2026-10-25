@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>N46060 Weight & Balance</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: single column worksheet on phones; loading table beside the moment envelope chart on desktop. Mirrors the handbook: weight vs moment/1000. */
+:root {
+  --bg: #eef0f2;
+  --surface: #f9fafb;
+  --ink: #14212e;
+  --muted: #5a6877;
+  --rule: #cfd5db;
+  --accent: #c2410c;
+  --ok: #17703b;
+  --ok-bg: #dcf0e3;
+  --bad: #b3261e;
+  --bad-bg: #f8dedc;
+  --warn-bg: #fbeccb;
+  --warn: #7a4b00;
+  --env-fill: rgba(23, 112, 59, 0.14);
+  --env-line: #17703b;
+  --util-line: #c2410c;
+  --font-ui: "Barlow Semi Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-num: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1822;
+    --surface: #17232f;
+    --ink: #e6ebf0;
+    --muted: #93a3b3;
+    --rule: #2b3b4a;
+    --accent: #f59e4b;
+    --ok: #5fd08a;
+    --ok-bg: #123524;
+    --bad: #ff8a80;
+    --bad-bg: #3d1a18;
+    --warn-bg: #3a2c0c;
+    --warn: #f2c46b;
+    --env-fill: rgba(95, 208, 138, 0.14);
+    --env-line: #5fd08a;
+    --util-line: #f59e4b;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1822;
+  --surface: #17232f;
+  --ink: #e6ebf0;
+  --muted: #93a3b3;
+  --rule: #2b3b4a;
+  --accent: #f59e4b;
+  --ok: #5fd08a;
+  --ok-bg: #123524;
+  --bad: #ff8a80;
+  --bad-bg: #3d1a18;
+  --warn-bg: #3a2c0c;
+  --warn: #f2c46b;
+  --env-fill: rgba(95, 208, 138, 0.14);
+  --env-line: #5fd08a;
+  --util-line: #f59e4b;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 1.4;
+  padding-block: 20px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1040px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+h1 { font-size: 32px; line-height: 1.05; margin: 0; font-weight: 700; letter-spacing: 0.01em; text-wrap: balance; }
+h1 small { display: block; font-size: 15px; font-weight: 500; color: var(--muted); letter-spacing: 0.04em; margin-top: 4px; }
+h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin: 0 0 10px; font-weight: 600; }
+.head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 10px 16px; border-bottom: 2px solid var(--ink); padding-bottom: 10px; }
+.seg { display: inline-flex; border: 1px solid var(--ink); border-radius: 3px; overflow: hidden; }
+.seg button { border: none; border-radius: 0; padding: 7px 14px; background: var(--bg); }
+.seg button + button { border-left: 1px solid var(--ink); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.notice { background: var(--warn-bg); color: var(--warn); padding: 10px 12px; font-size: 14px; border-left: 4px solid var(--warn); }
+.notice b { font-weight: 700; }
+.layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+@media (min-width: 900px) { .layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.panel { background: var(--surface); border: 1px solid var(--rule); padding: 14px; min-width: 0; }
+.tablewrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
+th { text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); font-weight: 600; padding: 4px 6px 6px; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+th.n, td.n { text-align: right; }
+td { padding: 5px 6px; border-bottom: 1px solid var(--rule); vertical-align: middle; }
+td.n { font-family: var(--font-num); font-variant-numeric: tabular-nums; white-space: nowrap; }
+td.lbl { font-weight: 500; }
+td.lbl small { display: block; color: var(--muted); font-weight: 400; font-size: 12px; }
+tfoot td { font-weight: 600; border-bottom: none; border-top: 2px solid var(--ink); }
+input[type="number"] {
+  width: 84px; font: inherit; font-family: var(--font-num); font-size: 15px; text-align: right;
+  background: var(--bg); color: var(--ink); border: 1px solid var(--rule); padding: 5px 6px; border-radius: 3px;
+}
+input[type="number"]:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+input.bad { border-color: var(--bad); background: var(--bad-bg); }
+.results { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+.res { border: 1px solid var(--rule); padding: 12px; display: flex; flex-direction: column; gap: 6px; background: var(--surface); }
+.res .tag { font-size: 12px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); font-weight: 600; }
+.res .big { font-family: var(--font-num); font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.res .big span { font-size: 13px; color: var(--muted); font-weight: 400; }
+.pill { align-self: flex-start; font-weight: 700; font-size: 13px; letter-spacing: 0.08em; padding: 3px 10px; text-transform: uppercase; }
+.pill.ok { background: var(--ok-bg); color: var(--ok); }
+.pill.bad { background: var(--bad-bg); color: var(--bad); }
+.issues { margin: 0; padding-left: 18px; font-size: 14px; color: var(--bad); }
+.issues li { margin: 2px 0; }
+.presets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+button { font: inherit; font-weight: 600; font-size: 14px; background: var(--bg); color: var(--ink); border: 1px solid var(--ink); padding: 6px 12px; cursor: pointer; border-radius: 3px; }
+button:hover { background: var(--ink); color: var(--bg); }
+button.quiet { border-color: var(--rule); color: var(--muted); }
+.fuelnote { font-size: 13px; color: var(--muted); margin: 8px 0 0; }
+svg { display: block; width: 100%; height: auto; }
+svg text { font-family: var(--font-num); font-size: 11px; fill: var(--muted); }
+svg .axis { stroke: var(--rule); stroke-width: 1; }
+svg .gl { stroke: var(--rule); stroke-width: 1; stroke-dasharray: 2 4; }
+svg .env { fill: var(--env-fill); stroke: var(--env-line); stroke-width: 2; stroke-linejoin: round; }
+svg .util { fill: none; stroke: var(--util-line); stroke-width: 2; stroke-dasharray: 7 5; stroke-linejoin: round; }
+svg .path { stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 4 3; }
+svg .pt-ok { fill: var(--ok); stroke: var(--surface); stroke-width: 2; }
+svg .pt-bad { fill: var(--bad); stroke: var(--surface); stroke-width: 2; }
+svg .ptlabel { fill: var(--ink); font-weight: 600; font-size: 12px; }
+svg .axtitle { fill: var(--ink); font-size: 12px; }
+svg .envlabel { fill: var(--env-line); font-weight: 600; }
+svg .utillabel { fill: var(--util-line); font-weight: 600; }
+details { background: var(--surface); border: 1px solid var(--rule); padding: 0 14px; }
+summary { cursor: pointer; padding: 12px 0; font-weight: 600; }
+details[open] summary { border-bottom: 1px solid var(--rule); margin-bottom: 12px; }
+.fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px 16px; padding-bottom: 14px; }
+.fields label { display: flex; flex-direction: column; gap: 3px; font-size: 13px; color: var(--muted); }
+.fields input { width: 100%; }
+.fields h3 { grid-column: 1 / -1; margin: 6px 0 0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink); }
+.foot { font-size: 13px; color: var(--muted); margin: 0; }
+@media (prefers-reduced-motion: no-preference) { button { transition: background 0.12s, color 0.12s; } }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; }
+:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <h1>N46060<small>1968 Cessna 172I &middot; weight &amp; balance</small></h1>
+    <div class="seg" role="group" aria-label="Category">
+      <button type="button" id="cat-normal" aria-pressed="true">Normal</button>
+      <button type="button" id="cat-utility" aria-pressed="false">Utility</button>
+    </div>
+  </div>
+
+  <div class="notice"><b>Planning aid. The pilot in command owns the final calculation.</b> Empty weight and moment are N46060's own figures. The station lines and both envelopes were read off photos of the handbook graphs, so each value is good to roughly one or two percent. Run a couple of loadings on the book's own graphs and compare before you lean on this.</div>
+
+  <div class="layout">
+    <div class="panel">
+      <h2>Loading</h2>
+      <div class="presets">
+        <button type="button" data-preset="solo">Solo, full tanks</button>
+        <button type="button" data-preset="two">Two up, 28 gal</button>
+        <button type="button" data-preset="four">Four up, 20 gal</button>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Station</th><th class="n">Weight</th><th class="n">Arm</th><th class="n">Moment/1000</th></tr></thead>
+          <tbody>
+            <tr><td class="lbl">Empty airplane<small>N46060 weighed figures</small></td><td class="n" id="w-empty"></td><td class="n" id="a-empty"></td><td class="n" id="m-empty"></td></tr>
+            <tr><td class="lbl">Pilot + front passenger</td><td class="n"><input type="number" id="in-front" min="0" step="1" inputmode="decimal" aria-label="Pilot and front passenger weight in pounds"></td><td class="n" id="a-front"></td><td class="n" id="m-front"></td></tr>
+            <tr><td class="lbl">Rear passengers</td><td class="n"><input type="number" id="in-rear" min="0" step="1" inputmode="decimal" aria-label="Rear passenger weight in pounds"></td><td class="n" id="a-rear"></td><td class="n" id="m-rear"></td></tr>
+            <tr><td class="lbl">Baggage or auxiliary seat<small id="lim-bag"></small></td><td class="n"><input type="number" id="in-bag" min="0" step="1" inputmode="decimal" aria-label="Baggage weight in pounds"></td><td class="n" id="a-bag"></td><td class="n" id="m-bag"></td></tr>
+            <tr><td class="lbl">Fuel at takeoff, gallons<small id="lim-fuel"></small></td><td class="n"><input type="number" id="in-fuel" min="0" step="0.5" inputmode="decimal" aria-label="Fuel at takeoff in gallons"></td><td class="n" id="a-fuel"></td><td class="n" id="m-fuel"></td></tr>
+          </tbody>
+          <tfoot><tr><td>Takeoff</td><td class="n" id="t-w"></td><td class="n" id="t-cg"></td><td class="n" id="t-m"></td></tr></tfoot>
+        </table>
+      </div>
+      <p class="fuelnote" id="fuelnote"></p>
+      <div style="height:12px"></div>
+      <h2>Landing</h2>
+      <div class="tablewrap">
+        <table>
+          <tbody>
+            <tr><td class="lbl">Fuel burned, gallons<small>trip burn including taxi and run-up</small></td><td class="n"><input type="number" id="in-burn" min="0" step="0.5" inputmode="decimal" aria-label="Fuel burned in gallons"></td></tr>
+          </tbody>
+          <tfoot><tr><td>Landing</td><td class="n" id="l-line"></td></tr></tfoot>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Center of gravity moment envelope</h2>
+      <div id="chart" role="img" aria-label="Weight against moment over 1000 envelope with takeoff and landing points"></div>
+    </div>
+  </div>
+
+  <div class="results" id="results"></div>
+
+  <details id="data">
+    <summary>Aircraft data</summary>
+    <div class="fields" id="fields"></div>
+    <div style="padding-bottom:14px"><button type="button" class="quiet" id="reset">Restore defaults</button></div>
+  </details>
+
+  <p class="foot">The handbook loading graph draws each station as a straight line from zero, so a station's moment is its weight times a fixed arm (inches aft of datum). Moment/1000 is what the handbook envelope plots. Below 1,500 lb the limits are extended at the same arms. Fuel is figured at the weight per gallon in Aircraft data.</p>
+</div>
+
+<script>
+(function () {
+  var DEFAULTS = {
+    emptyW: 1392, emptyM: 53325.6,
+    front: 37, rear: 73, bag: 95, fuelArm: 48,
+    bagMax: 120, fuelUsable: 38, lbGal: 6,
+    grossN: 2300, grossU: 2000,
+    fwdArm: 35.0, fwdKink: 1950, fwdTop: 38.5,
+    aftN: 47.3, aftU: 40.5
+  };
+  var LOAD0 = { front: 340, rear: 0, bag: 20, fuel: 38, burn: 8, cat: 'normal' };
+  var KEY = 'n46060-v1';
+  var cfg = Object.assign({}, DEFAULTS), load = Object.assign({}, LOAD0);
+
+  try {
+    var raw = localStorage.getItem(KEY);
+    if (raw) { var s = JSON.parse(raw); Object.assign(cfg, s.cfg || {}); Object.assign(load, s.load || {}); }
+  } catch (e) {}
+  function save() { try { localStorage.setItem(KEY, JSON.stringify({ cfg: cfg, load: load })); } catch (e) {} }
+
+  var $ = function (id) { return document.getElementById(id); };
+  var num = function (v) { var n = parseFloat(v); return isFinite(n) ? n : 0; };
+  var f1 = function (n) { return n.toFixed(1); };
+  var f2 = function (n) { return n.toFixed(2); };
+  var fm = function (n) { return Math.round(n).toLocaleString('en-US'); };
+
+  var FIELDS = [
+    ['h', 'Empty airplane (N46060 weighed)'],
+    ['emptyW', 'Empty weight, lb'], ['emptyM', 'Empty moment, lb-in'],
+    ['h', 'Weight limits'],
+    ['grossN', 'Normal max weight, lb'], ['grossU', 'Utility max weight, lb'],
+    ['h', 'CG limits, inches aft of datum'],
+    ['fwdArm', 'Forward limit up to kink weight'], ['fwdKink', 'Kink weight, lb'], ['fwdTop', 'Forward limit at 2,300 lb'],
+    ['aftN', 'Aft limit, normal'], ['aftU', 'Aft limit, utility'],
+    ['h', 'Loading graph lines, effective arm in inches'],
+    ['front', 'Pilot + front passenger'], ['rear', 'Rear passengers'], ['bag', 'Baggage or auxiliary seat'], ['fuelArm', 'Fuel'],
+    ['h', 'Limits and fuel'],
+    ['bagMax', 'Baggage max, lb'], ['fuelUsable', 'Usable fuel, gal'], ['lbGal', 'Fuel weight, lb per gal']
+  ];
+  var fieldsEl = $('fields');
+  FIELDS.forEach(function (f) {
+    if (f[0] === 'h') { var h = document.createElement('h3'); h.textContent = f[1]; fieldsEl.appendChild(h); return; }
+    var l = document.createElement('label'); l.setAttribute('for', 'cfg-' + f[0]);
+    l.appendChild(document.createTextNode(f[1]));
+    var i = document.createElement('input'); i.type = 'number'; i.step = 'any'; i.id = 'cfg-' + f[0]; i.setAttribute('inputmode', 'decimal');
+    i.value = cfg[f[0]];
+    i.addEventListener('input', function () { cfg[f[0]] = num(i.value); save(); render(); });
+    l.appendChild(i); fieldsEl.appendChild(l);
+  });
+
+  var INPUTS = ['front', 'rear', 'bag', 'fuel', 'burn'];
+  INPUTS.forEach(function (k) {
+    var el = $('in-' + k); el.value = load[k];
+    el.addEventListener('input', function () { load[k] = Math.max(0, num(el.value)); save(); render(); });
+  });
+
+  var PRESETS = {
+    solo: { front: 170, rear: 0, bag: 10, fuel: 38, burn: 8 },
+    two: { front: 340, rear: 0, bag: 20, fuel: 28, burn: 8 },
+    four: { front: 340, rear: 300, bag: 30, fuel: 20, burn: 8 }
+  };
+  document.querySelectorAll('[data-preset]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      Object.assign(load, PRESETS[b.getAttribute('data-preset')]);
+      INPUTS.forEach(function (k) { $('in-' + k).value = load[k]; });
+      save(); render();
+    });
+  });
+  ['normal', 'utility'].forEach(function (c) {
+    $('cat-' + c).addEventListener('click', function () { load.cat = c; save(); render(); });
+  });
+  $('reset').addEventListener('click', function () {
+    cfg = Object.assign({}, DEFAULTS);
+    FIELDS.forEach(function (f) { if (f[0] !== 'h') $('cfg-' + f[0]).value = cfg[f[0]]; });
+    save(); render();
+  });
+
+  function fwdLimit(w) {
+    if (w <= cfg.fwdKink) return cfg.fwdArm;
+    var top = 2300;
+    var t = Math.min(1, (w - cfg.fwdKink) / ((top - cfg.fwdKink) || 1));
+    return cfg.fwdArm + t * (cfg.fwdTop - cfg.fwdArm);
+  }
+  function catData() {
+    return load.cat === 'utility'
+      ? { name: 'Utility', gross: cfg.grossU, aft: cfg.aftU }
+      : { name: 'Normal', gross: cfg.grossN, aft: cfg.aftN };
+  }
+
+  function calc(fuelGal) {
+    var cd = catData();
+    var fw = fuelGal * cfg.lbGal;
+    var w = cfg.emptyW + load.front + load.rear + load.bag + fw;
+    var m = cfg.emptyM + load.front * cfg.front + load.rear * cfg.rear + load.bag * cfg.bag + fw * cfg.fuelArm;
+    var cg = w > 0 ? m / w : 0;
+    var fwd = fwdLimit(w);
+    var issues = [];
+    if (w > cd.gross) issues.push('Over ' + cd.name.toLowerCase() + ' max weight by ' + fm(w - cd.gross) + ' lb.');
+    if (cg < fwd) issues.push('CG ' + f2(fwd - cg) + ' in ahead of the forward limit (' + f1(fwd) + ').');
+    if (cg > cd.aft) issues.push('CG ' + f2(cg - cd.aft) + ' in behind the aft limit (' + f1(cd.aft) + ').');
+    return { w: w, m: m, cg: cg, fuelLb: fw, fwd: fwd, aft: cd.aft, issues: issues };
+  }
+
+  function limitIssues() {
+    var out = [];
+    if (load.bag > cfg.bagMax) out.push('Baggage is over its ' + cfg.bagMax + ' lb limit.');
+    if (load.fuel > cfg.fuelUsable) out.push('Fuel is more than the ' + cfg.fuelUsable + ' gal usable.');
+    if (load.burn > load.fuel) out.push('Fuel burned is more than fuel loaded.');
+    return out;
+  }
+
+  function resCard(tag, c, extra) {
+    var ok = c.issues.length === 0 && !extra.length;
+    var list = c.issues.concat(extra);
+    return '<div class="res"><span class="tag">' + tag + '</span>' +
+      '<div class="big">' + fm(c.w) + ' <span>lb</span></div>' +
+      '<div class="big">' + f2(c.cg) + ' <span>in aft of datum</span></div>' +
+      '<div class="big">' + f2(c.m / 1000) + ' <span>moment/1000</span></div>' +
+      '<span class="pill ' + (ok ? 'ok' : 'bad') + '">' + (ok ? 'Within ' + catData().name.toLowerCase() + ' limits' : 'Out of limits') + '</span>' +
+      (list.length ? '<ul class="issues">' + list.map(function (i) { return '<li>' + i + '</li>'; }).join('') + '</ul>' : '') +
+      '</div>';
+  }
+
+  function chart(to, ld) {
+    var W = 600, H = 440, L = 56, R = 16, T = 16, B = 48;
+    var xmin = 40, xmax = 115, wmin = 1300, wmax = 2400;
+    var X = function (m) { return L + (m - xmin) / (xmax - xmin) * (W - L - R); };
+    var Y = function (w) { return H - B - (w - wmin) / (wmax - wmin) * (H - T - B); };
+    var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg">';
+    var v, w;
+    for (v = xmin; v <= xmax; v += 5) {
+      s += '<line class="gl" x1="' + X(v) + '" y1="' + T + '" x2="' + X(v) + '" y2="' + (H - B) + '"/>';
+      if (v % 10 === 0) s += '<text x="' + X(v) + '" y="' + (H - B + 16) + '" text-anchor="middle">' + v + '</text>';
+    }
+    for (w = wmin; w <= wmax; w += 100) {
+      s += '<line class="gl" x1="' + L + '" y1="' + Y(w) + '" x2="' + (W - R) + '" y2="' + Y(w) + '"/>';
+      s += '<text x="' + (L - 8) + '" y="' + (Y(w) + 4) + '" text-anchor="end">' + w + '</text>';
+    }
+    s += '<line class="axis" x1="' + L + '" y1="' + (H - B) + '" x2="' + (W - R) + '" y2="' + (H - B) + '"/>';
+    s += '<line class="axis" x1="' + L + '" y1="' + T + '" x2="' + L + '" y2="' + (H - B) + '"/>';
+    var mo = function (arm, wt) { return arm * wt / 1000; };
+    var pts = function (arr) { return arr.map(function (q) { return X(q[0]).toFixed(1) + ',' + Y(q[1]).toFixed(1); }).join(' '); };
+    var fwdAtU = fwdLimit(cfg.grossU);
+    var normal = [[mo(cfg.fwdArm, wmin), wmin], [mo(cfg.fwdArm, cfg.fwdKink), cfg.fwdKink],
+                  [mo(fwdLimit(cfg.grossN), cfg.grossN), cfg.grossN], [mo(cfg.aftN, cfg.grossN), cfg.grossN], [mo(cfg.aftN, wmin), wmin]];
+    var utility = [[mo(cfg.fwdArm, wmin), wmin], [mo(cfg.fwdArm, cfg.fwdKink), cfg.fwdKink],
+                   [mo(fwdAtU, cfg.grossU), cfg.grossU], [mo(cfg.aftU, cfg.grossU), cfg.grossU], [mo(cfg.aftU, wmin), wmin]];
+    var utilActive = load.cat === 'utility';
+    s += '<polygon class="env" style="' + (utilActive ? 'fill:none;stroke-opacity:0.45' : '') + '" points="' + pts(normal) + '"/>';
+    s += '<polygon class="util" style="' + (utilActive ? 'fill:var(--env-fill)' : '') + '" points="' + pts(utility) + '"/>';
+    s += '<text class="envlabel" x="' + (X(mo(cfg.aftN, cfg.grossN)) - 6) + '" y="' + (Y(cfg.grossN) + 16) + '" text-anchor="end">Normal ' + fm(cfg.grossN) + ' lb</text>';
+    s += '<text class="utillabel" x="' + (X(mo(cfg.aftU, wmin)) + 10) + '" y="' + (Y(wmin) - 8) + '">Utility ' + fm(cfg.grossU) + ' lb</text>';
+    s += '<text x="' + ((L + W - R) / 2) + '" y="' + (H - 6) + '" text-anchor="middle" class="axtitle">Loaded aircraft moment / 1000 (lb-in)</text>';
+    s += '<text transform="translate(14 ' + ((T + H - B) / 2) + ') rotate(-90)" text-anchor="middle" class="axtitle">Loaded weight, lb</text>';
+    var tx = to.m / 1000, lx = ld.m / 1000;
+    s += '<line class="path" x1="' + X(tx) + '" y1="' + Y(to.w) + '" x2="' + X(lx) + '" y2="' + Y(ld.w) + '"/>';
+    function pt(o, name, dx) {
+      var ok = o.issues.length === 0;
+      var x = Math.min(W - R - 4, Math.max(L + 4, X(o.m / 1000))), y = Math.min(H - B, Math.max(T, Y(o.w)));
+      return '<circle class="' + (ok ? 'pt-ok' : 'pt-bad') + '" cx="' + x + '" cy="' + y + '" r="7"/>' +
+        '<text class="ptlabel" x="' + (x + dx) + '" y="' + (y + 4) + '" text-anchor="' + (dx < 0 ? 'end' : 'start') + '">' + name + '</text>';
+    }
+    var dxT = X(tx) > W - 110 ? -12 : 12;
+    s += pt(to, 'Takeoff', dxT) + pt(ld, 'Landing', dxT);
+    return s + '</svg>';
+  }
+
+  function render() {
+    var cd = catData();
+    var to = calc(load.fuel);
+    var ld = calc(Math.max(0, load.fuel - load.burn));
+
+    $('cat-normal').setAttribute('aria-pressed', load.cat !== 'utility');
+    $('cat-utility').setAttribute('aria-pressed', load.cat === 'utility');
+
+    $('w-empty').textContent = fm(cfg.emptyW);
+    $('a-empty').textContent = f2(cfg.emptyW ? cfg.emptyM / cfg.emptyW : 0);
+    $('m-empty').textContent = f2(cfg.emptyM / 1000);
+    ['front', 'rear', 'bag'].forEach(function (k) {
+      $('a-' + k).textContent = f1(cfg[k]);
+      $('m-' + k).textContent = f2(load[k] * cfg[k] / 1000);
+    });
+    $('a-fuel').textContent = f1(cfg.fuelArm);
+    $('m-fuel').textContent = f2(to.fuelLb * cfg.fuelArm / 1000);
+    $('lim-bag').textContent = 'max ' + cfg.bagMax + ' lb';
+    $('lim-fuel').textContent = cfg.fuelUsable + ' gal usable';
+    $('fuelnote').textContent = 'Fuel on board: ' + f1(to.fuelLb) + ' lb at ' + cfg.lbGal + ' lb per gal.';
+    $('t-w').textContent = fm(to.w) + ' lb';
+    $('t-cg').textContent = f2(to.cg);
+    $('t-m').textContent = f2(to.m / 1000);
+    $('l-line').textContent = fm(ld.w) + ' lb at ' + f2(ld.cg) + ' in';
+
+    $('in-bag').classList.toggle('bad', load.bag > cfg.bagMax);
+    $('in-fuel').classList.toggle('bad', load.fuel > cfg.fuelUsable);
+    $('in-burn').classList.toggle('bad', load.burn > load.fuel);
+
+    var li = limitIssues();
+    $('results').innerHTML = resCard('Takeoff, ' + cd.name.toLowerCase(), to, li) + resCard('Landing, ' + cd.name.toLowerCase(), ld, []);
+    $('chart').innerHTML = chart(to, ld);
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
