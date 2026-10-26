@@ -43,10 +43,18 @@ interface LoadFormProps {
   readonly values: FormState['values'];
   readonly parsed: ParsedForm;
   readonly onFieldChange: (field: FormField, value: string) => void;
+  readonly onSlideEmptyWeight: (weightLb: number) => void;
   readonly onClear: () => void;
 }
 
-export function LoadForm({ aircraft, values, parsed, onFieldChange, onClear }: LoadFormProps) {
+export function LoadForm({
+  aircraft,
+  values,
+  parsed,
+  onFieldChange,
+  onSlideEmptyWeight,
+  onClear,
+}: LoadFormProps) {
   const issues = parsed.status === 'invalid' ? parsed.issues : {};
 
   return (
@@ -70,6 +78,7 @@ export function LoadForm({ aircraft, values, parsed, onFieldChange, onClear }: L
         values={values}
         issues={issues}
         onFieldChange={onFieldChange}
+        onSlide={onSlideEmptyWeight}
       />
       <button className="button load-form__clear" type="button" onClick={onClear}>
         Clear all

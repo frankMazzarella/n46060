@@ -14,6 +14,8 @@ export interface WeightBalanceController {
   /** True when the empty weight or moment in use differs from the aircraft's weighed record. */
   readonly emptyOverridden: boolean;
   readonly setField: (field: FormField, value: string) => void;
+  /** Sets the empty weight from the slider and estimates the moment at the same empty CG. */
+  readonly slideEmptyWeight: (weightLb: number) => void;
   readonly setCategory: (category: Category) => void;
   readonly clear: () => void;
 }
@@ -42,6 +44,16 @@ export function useWeightBalance(aircraft: Aircraft): WeightBalanceController {
   const setField = useCallback((field: FormField, value: string) => {
     dispatch({ type: 'fieldChanged', field, value });
   }, []);
+  const slideEmptyWeight = useCallback(
+    (weightLb: number) => {
+      dispatch({
+        type: 'emptyWeightSlid',
+        weightLb,
+        fallbackArmIn: aircraft.emptyMomentLbIn / aircraft.emptyWeightLb,
+      });
+    },
+    [aircraft],
+  );
   const setCategory = useCallback((category: Category) => {
     dispatch({ type: 'categoryChanged', category });
   }, []);
@@ -49,5 +61,14 @@ export function useWeightBalance(aircraft: Aircraft): WeightBalanceController {
     dispatch({ type: 'cleared', values: initialFormState(aircraft).values });
   }, [aircraft]);
 
-  return { form, parsed, assessment, emptyOverridden, setField, setCategory, clear };
+  return {
+    form,
+    parsed,
+    assessment,
+    emptyOverridden,
+    setField,
+    slideEmptyWeight,
+    setCategory,
+    clear,
+  };
 }

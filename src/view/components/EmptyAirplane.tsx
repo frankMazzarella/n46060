@@ -13,14 +13,22 @@ interface EmptyAirplaneProps {
   readonly values: FormState['values'];
   readonly issues: Readonly<Partial<Record<FormField, FieldIssue>>>;
   readonly onFieldChange: (field: FormField, value: string) => void;
+  readonly onSlide: (weightLb: number) => void;
 }
 
 /**
  * The empty weight and moment, which change after each weighing. They start at
- * the values on record. The slider is a quick way to set the weight; the boxes
- * take exact figures, and the moment must be changed with the weight.
+ * the values on record. The slider is a quick estimate: it moves the weight and
+ * keeps the empty CG, so the moment follows. The boxes take exact figures, and a
+ * weight typed on its own leaves the moment alone.
  */
-export function EmptyAirplane({ aircraft, values, issues, onFieldChange }: EmptyAirplaneProps) {
+export function EmptyAirplane({
+  aircraft,
+  values,
+  issues,
+  onFieldChange,
+  onSlide,
+}: EmptyAirplaneProps) {
   const sliderId = useId();
   const min = aircraft.emptyWeightLb - SLIDER_SPAN_LB;
   const max = aircraft.emptyWeightLb + SLIDER_SPAN_LB;
@@ -36,7 +44,8 @@ export function EmptyAirplane({ aircraft, values, issues, onFieldChange }: Empty
       <legend className="empty-airplane__legend">Empty airplane</legend>
       <p className="empty-airplane__hint">
         On record: {formatWeightLb(aircraft.emptyWeightLb)} lb,{' '}
-        {formatMomentLbIn(aircraft.emptyMomentLbIn)} lb-in. Update both after a new weighing.
+        {formatMomentLbIn(aircraft.emptyMomentLbIn)} lb-in. The slider estimates the moment at the
+        same empty CG. Type both boxes for figures from a new weighing.
       </p>
       <input
         className="empty-airplane__slider"
@@ -48,7 +57,7 @@ export function EmptyAirplane({ aircraft, values, issues, onFieldChange }: Empty
         value={sliderValue}
         aria-label="Slider for empty weight"
         onChange={(event) => {
-          onFieldChange('emptyWeightLb', event.target.value);
+          onSlide(event.target.valueAsNumber);
         }}
       />
       <QuantityField

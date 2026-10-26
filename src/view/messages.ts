@@ -55,6 +55,6 @@ export function describePending(parsed: Exclude<ParsedForm, { status: 'ready' }>
 export function describeEmptyOverride(aircraft: Aircraft): string {
   return (
     `Empty weight or moment is not the weighed value on record (${formatWeightLb(aircraft.emptyWeightLb)} lb, ` +
-    `${formatMomentLbIn(aircraft.emptyMomentLbIn)} lb-in). Use figures from the airplane's current weight and balance record, weight and moment together.`
+    `${formatMomentLbIn(aircraft.emptyMomentLbIn)} lb-in). A moment set by the slider is an estimate at the same empty CG. Use the figures from the airplane's current weight and balance record, weight and moment together.`
   );
 }

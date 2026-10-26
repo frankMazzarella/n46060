@@ -186,7 +186,7 @@ describe('App', () => {
     expect(screen.queryByText(/empty weight changed/i)).not.toBeInTheDocument();
   });
 
-  it('follows the slider: a heavier empty weight raises the totals and shows a warning', async () => {
+  it('follows the slider: a heavier empty weight and a moment at the same arm, with a warning', async () => {
     const user = userEvent.setup();
     render(<App />);
     await enter(user, TWO_UP);
@@ -196,8 +196,20 @@ describe('App', () => {
     });
 
     expect(screen.getByLabelText(/^empty weight/i)).toHaveValue('1402');
+    // 1402 lb at the 38.309 in empty arm: 53,708.69 lb-in.
+    expect(screen.getByLabelText(/^empty moment/i)).toHaveValue('53708.69');
     expect(within(phase('Takeoff')).getByText('1,990.0 lb')).toBeInTheDocument();
     expect(screen.getByText(/empty weight changed/i)).toBeInTheDocument();
+  });
+
+  it('leaves the moment alone when the weight is typed instead of slid', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.clear(screen.getByLabelText(/^empty weight/i));
+    await user.type(screen.getByLabelText(/^empty weight/i), '1402');
+
+    expect(screen.getByLabelText(/^empty moment/i)).toHaveValue('53325.6');
   });
 
   it('puts the empty airplane back on record with the reset button', async () => {

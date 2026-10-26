@@ -41,16 +41,22 @@ const FIELD_RULES: Readonly<Record<FormField, FieldRule>> = {
   fuelBurnedGallons: { optional: true, mustBePositive: false },
 };
 
-function parseQuantity(text: string, rule: FieldRule): ParsedQuantity {
+/** The strict reading of one typed quantity: a finite number of zero or more, or null. */
+export function parseDecimal(text: string): number | null {
   const trimmed = text.trim();
-  if (trimmed === '') {
-    return rule.optional ? { kind: 'value', value: 0 } : { kind: 'blank' };
-  }
   if (!QUANTITY_PATTERN.test(trimmed)) {
-    return { kind: 'invalid', issue: 'notANumber' };
+    return null;
   }
   const value = Number(trimmed);
-  if (!Number.isFinite(value)) {
+  return Number.isFinite(value) ? value : null;
+}
+
+function parseQuantity(text: string, rule: FieldRule): ParsedQuantity {
+  if (text.trim() === '') {
+    return rule.optional ? { kind: 'value', value: 0 } : { kind: 'blank' };
+  }
+  const value = parseDecimal(text);
+  if (value === null) {
     return { kind: 'invalid', issue: 'notANumber' };
   }
   if (rule.mustBePositive && value === 0) {

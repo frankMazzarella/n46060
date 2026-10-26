@@ -10,8 +10,16 @@ import { Worksheet } from './components/Worksheet';
 import { describeEmptyOverride, describePending } from './messages';
 
 function Calculator() {
-  const { form, parsed, assessment, emptyOverridden, setField, setCategory, clear } =
-    useWeightBalance(N46060);
+  const {
+    form,
+    parsed,
+    assessment,
+    emptyOverridden,
+    setField,
+    slideEmptyWeight,
+    setCategory,
+    clear,
+  } = useWeightBalance(N46060);
 
   return (
     <div className="app">
@@ -23,6 +31,7 @@ function Calculator() {
           values={form.values}
           parsed={parsed}
           onFieldChange={setField}
+          onSlideEmptyWeight={slideEmptyWeight}
           onClear={clear}
         />
         <EnvelopeChart aircraft={N46060} category={form.category} assessment={assessment} />

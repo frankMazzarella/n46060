@@ -56,4 +56,59 @@ describe('formReducer', () => {
     expect(next.values).toEqual(INITIAL_FORM_STATE.values);
     expect(next.category).toBe('utility');
   });
+
+  describe('emptyWeightSlid', () => {
+    // The fixture empty arm is 40 in (40,000 / 1000).
+    const slide = (state: ReturnType<typeof initialFormState>, weightLb: number) =>
+      formReducer(state, { type: 'emptyWeightSlid', weightLb, fallbackArmIn: 40 });
+
+    it('moves the weight and keeps the empty arm, so the moment follows', () => {
+      const next = slide(INITIAL_FORM_STATE, 1010);
+
+      expect(next.values.emptyWeightLb).toBe('1010');
+      expect(next.values.emptyMomentLbIn).toBe('40400');
+    });
+
+    it('keeps the arm of a moment the pilot typed, not the arm on record', () => {
+      // 1000 lb at 41,000 lb-in is a 41 in arm.
+      const typed = formReducer(INITIAL_FORM_STATE, {
+        type: 'fieldChanged',
+        field: 'emptyMomentLbIn',
+        value: '41000',
+      });
+
+      expect(slide(typed, 1100).values.emptyMomentLbIn).toBe('45100');
+    });
+
+    it.each([
+      ['emptyWeightLb', ''],
+      ['emptyWeightLb', 'abc'],
+      ['emptyWeightLb', '0'],
+      ['emptyMomentLbIn', ''],
+      ['emptyMomentLbIn', '1e3'],
+    ] as const)('falls back to the record arm when %s is %j', (field, value) => {
+      const broken = formReducer(INITIAL_FORM_STATE, { type: 'fieldChanged', field, value });
+
+      expect(slide(broken, 1010).values.emptyMomentLbIn).toBe('40400');
+    });
+
+    it('does not drift when the slider is dragged back and forth', () => {
+      let state = INITIAL_FORM_STATE;
+      for (const weightLb of [1013, 1007, 1031, 999, 1043, 1000]) {
+        state = slide(state, weightLb);
+      }
+
+      expect(state.values.emptyMomentLbIn).toBe('40000');
+    });
+
+    it('leaves the load fields and category alone', () => {
+      const typed = formReducer(INITIAL_FORM_STATE, {
+        type: 'fieldChanged',
+        field: 'baggageLb',
+        value: '20',
+      });
+
+      expect(slide(typed, 1010).values.baggageLb).toBe('20');
+    });
+  });
 });
