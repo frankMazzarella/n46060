@@ -11,6 +11,13 @@ export function assertQuantity(name: string, value: number): void {
   }
 }
 
+/** Throws unless `value` is a finite number greater than zero. */
+export function assertPositive(name: string, value: number): void {
+  if (!Number.isFinite(value) || value <= 0) {
+    throw new RangeError(`${name} must be a finite number above zero, got ${value}`);
+  }
+}
+
 /** Throws unless `value` is a finite number. */
 export function assertFinite(name: string, value: number): void {
   if (!Number.isFinite(value)) {

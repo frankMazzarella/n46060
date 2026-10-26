@@ -1,13 +1,15 @@
 import type { FormField, FormState, ParsedForm } from '../../controller';
 import type { Aircraft } from '../../model';
+import { EmptyAirplane } from './EmptyAirplane';
 import { Panel } from './Panel';
 import { QuantityField } from './QuantityField';
+import type { QuantityUnit } from './QuantityField';
 import './LoadForm.css';
 
 interface FieldSpec {
   readonly field: FormField;
   readonly label: string;
-  readonly unit: 'lb' | 'gal';
+  readonly unit: QuantityUnit;
   readonly hint?: string;
 }
 
@@ -29,9 +31,9 @@ function fieldSpecs(aircraft: Aircraft): readonly FieldSpec[] {
     },
     {
       field: 'fuelBurnedGallons',
-      label: 'Fuel burned',
+      label: 'Fuel burned (optional)',
       unit: 'gal',
-      hint: 'Taxi, run-up and flight',
+      hint: 'Taxi, run-up and flight. Leave blank for none.',
     },
   ];
 }
@@ -49,7 +51,7 @@ export function LoadForm({ aircraft, values, parsed, onFieldChange, onClear }: L
 
   return (
     <Panel title="Load">
-      <p className="load-form__intro">Enter every field. Use 0 for none.</p>
+      <p className="load-form__intro">Enter every field except fuel burned. Use 0 for none.</p>
       {fieldSpecs(aircraft).map(({ field, label, unit, hint }) => (
         <QuantityField
           key={field}
@@ -63,6 +65,12 @@ export function LoadForm({ aircraft, values, parsed, onFieldChange, onClear }: L
           }}
         />
       ))}
+      <EmptyAirplane
+        aircraft={aircraft}
+        values={values}
+        issues={issues}
+        onFieldChange={onFieldChange}
+      />
       <button className="button load-form__clear" type="button" onClick={onClear}>
         Clear all
       </button>

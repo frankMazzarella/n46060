@@ -1,4 +1,4 @@
-import type { Category, FlightInputs } from '../model';
+import type { Aircraft, Category, FlightInputs } from '../model';
 
 /** Every quantity the pilot enters. Matches the model's flight inputs one to one. */
 export type FormField = keyof FlightInputs;
@@ -14,21 +14,29 @@ export interface FormState {
 export type FormAction =
   | { readonly type: 'fieldChanged'; readonly field: FormField; readonly value: string }
   | { readonly type: 'categoryChanged'; readonly category: Category }
-  | { readonly type: 'cleared' };
-
-const BLANK_VALUES: FormValues = {
-  frontSeatsLb: '',
-  rearSeatsLb: '',
-  baggageLb: '',
-  fuelGallons: '',
-  fuelBurnedGallons: '',
-};
+  /** Puts every field back to `values`, normally the aircraft's starting values. */
+  | { readonly type: 'cleared'; readonly values: FormValues };
 
 /**
- * Every field starts blank, not zero. The pilot has to state each quantity,
- * including "0 for none", so nothing is assumed about the load.
+ * The load fields start blank, not zero. The pilot has to state each quantity,
+ * including "0 for none", so nothing is assumed about the load. The empty
+ * condition starts at the aircraft's weighed values, because it is a property
+ * of the airplane and not of the flight. Fuel burned is optional: blank means none.
  */
-export const INITIAL_FORM_STATE: FormState = { values: BLANK_VALUES, category: 'normal' };
+export function initialFormState(aircraft: Aircraft): FormState {
+  return {
+    category: 'normal',
+    values: {
+      emptyWeightLb: String(aircraft.emptyWeightLb),
+      emptyMomentLbIn: String(aircraft.emptyMomentLbIn),
+      frontSeatsLb: '',
+      rearSeatsLb: '',
+      baggageLb: '',
+      fuelGallons: '',
+      fuelBurnedGallons: '',
+    },
+  };
+}
 
 export function formReducer(state: FormState, action: FormAction): FormState {
   switch (action.type) {
@@ -38,6 +46,6 @@ export function formReducer(state: FormState, action: FormAction): FormState {
       return { ...state, category: action.category };
     case 'cleared':
       // Keeps the chosen category: it describes the flight, not the load.
-      return { ...state, values: BLANK_VALUES };
+      return { ...state, values: action.values };
   }
 }

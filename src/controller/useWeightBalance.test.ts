@@ -6,7 +6,7 @@ import { useWeightBalance } from './useWeightBalance';
 
 function fill(
   result: { current: ReturnType<typeof useWeightBalance> },
-  values: Record<FormField, string>,
+  values: Partial<Record<FormField, string>>,
 ): void {
   act(() => {
     for (const [field, value] of Object.entries(values) as [FormField, string][]) {
@@ -81,6 +81,43 @@ describe('useWeightBalance', () => {
     });
 
     expect(result.current.assessment).toBeNull();
-    expect(Object.values(result.current.form.values)).toEqual(['', '', '', '', '']);
+    expect(result.current.form.values.frontSeatsLb).toBe('');
+  });
+
+  it('keeps landing at takeoff fuel when fuel burned is left blank', () => {
+    const { result } = renderHook(() => useWeightBalance(TEST_AIRCRAFT));
+
+    fill(result, { ...WITHIN_LIMITS, fuelBurnedGallons: '' });
+
+    expect(result.current.assessment?.takeoff.loadCase.weightLb).toBe(1200);
+    expect(result.current.assessment?.landing.loadCase.weightLb).toBe(1200);
+  });
+
+  it('starts from the empty condition on record and does not flag it', () => {
+    const { result } = renderHook(() => useWeightBalance(TEST_AIRCRAFT));
+    fill(result, WITHIN_LIMITS);
+
+    expect(result.current.form.values.emptyWeightLb).toBe('1000');
+    expect(result.current.emptyOverridden).toBe(false);
+  });
+
+  it('uses a changed empty weight and flags it as different from the record', () => {
+    const { result } = renderHook(() => useWeightBalance(TEST_AIRCRAFT));
+    fill(result, { ...WITHIN_LIMITS, emptyWeightLb: '1010', emptyMomentLbIn: '40400' });
+
+    expect(result.current.emptyOverridden).toBe(true);
+    expect(result.current.assessment?.takeoff.loadCase.weightLb).toBe(1210);
+    expect(result.current.assessment?.takeoff.loadCase.lines[0]?.momentLbIn).toBe(40_400);
+  });
+
+  it('puts the empty condition back on record when cleared', () => {
+    const { result } = renderHook(() => useWeightBalance(TEST_AIRCRAFT));
+    fill(result, { ...WITHIN_LIMITS, emptyWeightLb: '1010' });
+
+    act(() => {
+      result.current.clear();
+    });
+
+    expect(result.current.form.values.emptyWeightLb).toBe('1000');
   });
 });

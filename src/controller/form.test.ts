@@ -1,9 +1,20 @@
 import { describe, expect, it } from 'vitest';
-import { INITIAL_FORM_STATE, formReducer } from './form';
+import { TEST_AIRCRAFT } from '../test/fixtures';
+import { formReducer, initialFormState } from './form';
+
+const INITIAL_FORM_STATE = initialFormState(TEST_AIRCRAFT);
 
 describe('formReducer', () => {
-  it('starts with every field blank and the normal category', () => {
-    expect(Object.values(INITIAL_FORM_STATE.values)).toEqual(['', '', '', '', '']);
+  it('starts with the load blank, the empty condition on record and the normal category', () => {
+    expect(INITIAL_FORM_STATE.values).toEqual({
+      emptyWeightLb: '1000',
+      emptyMomentLbIn: '40000',
+      frontSeatsLb: '',
+      rearSeatsLb: '',
+      baggageLb: '',
+      fuelGallons: '',
+      fuelBurnedGallons: '',
+    });
     expect(INITIAL_FORM_STATE.category).toBe('normal');
   });
 
@@ -30,12 +41,17 @@ describe('formReducer', () => {
     expect(next.values.frontSeatsLb).toBe('170');
   });
 
-  it('clears every field but keeps the category', () => {
+  it('puts every field back to its starting value but keeps the category', () => {
     const typed = formReducer(
       formReducer(INITIAL_FORM_STATE, { type: 'categoryChanged', category: 'utility' }),
       { type: 'fieldChanged', field: 'frontSeatsLb', value: '170' },
     );
-    const next = formReducer(typed, { type: 'cleared' });
+    const edited = formReducer(typed, {
+      type: 'fieldChanged',
+      field: 'emptyWeightLb',
+      value: '1010',
+    });
+    const next = formReducer(edited, { type: 'cleared', values: INITIAL_FORM_STATE.values });
 
     expect(next.values).toEqual(INITIAL_FORM_STATE.values);
     expect(next.category).toBe('utility');

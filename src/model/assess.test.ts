@@ -120,6 +120,7 @@ describe('assessFlight', () => {
   // 40000 + 1000 + 4000 = 45000, CG 37.5 in against a 32 in forward limit.
   // Landing: 12 gal = 60 lb fuel, weight 1160 lb, CG 37.41 in against 31.6 in.
   const inputs = {
+    ...NO_LOAD,
     frontSeatsLb: 100,
     rearSeatsLb: 0,
     baggageLb: 0,

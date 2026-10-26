@@ -1,6 +1,12 @@
 import type { FieldIssue, ParsedForm } from '../controller';
-import type { Category, Violation } from '../model';
-import { formatArmIn, formatExcess, formatGallons, formatWeightLb } from './format';
+import type { Aircraft, Category, Violation } from '../model';
+import {
+  formatArmIn,
+  formatExcess,
+  formatGallons,
+  formatMomentLbIn,
+  formatWeightLb,
+} from './format';
 
 /** Every sentence the pilot reads about a problem lives here. */
 
@@ -11,6 +17,7 @@ export const CATEGORY_LABELS: Readonly<Record<Category, string>> = {
 
 const ISSUE_MESSAGES: Readonly<Record<FieldIssue, string>> = {
   notANumber: 'Enter a number such as 12 or 12.5.',
+  notPositive: 'Enter a number greater than 0.',
 };
 
 export function describeIssue(issue: FieldIssue): string {
@@ -38,8 +45,16 @@ export function describeViolation(violation: Violation): string {
 export function describePending(parsed: Exclude<ParsedForm, { status: 'ready' }>): string {
   switch (parsed.status) {
     case 'incomplete':
-      return 'Enter a value in every field to see results. Use 0 for none.';
+      return 'Enter a value in every load field to see results. Use 0 for none.';
     case 'invalid':
       return 'Fix the highlighted fields to see results.';
   }
+}
+
+/** Shown with results whenever the empty weight or moment is not the one on record. */
+export function describeEmptyOverride(aircraft: Aircraft): string {
+  return (
+    `Empty weight or moment is not the weighed value on record (${formatWeightLb(aircraft.emptyWeightLb)} lb, ` +
+    `${formatMomentLbIn(aircraft.emptyMomentLbIn)} lb-in). Use figures from the airplane's current weight and balance record, weight and moment together.`
+  );
 }

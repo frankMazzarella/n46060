@@ -14,6 +14,10 @@ export function formatWeightLb(weightLb: number): string {
   return ONE_DECIMAL.format(weightLb);
 }
 
+export function formatMomentLbIn(momentLbIn: number): string {
+  return ONE_DECIMAL.format(momentLbIn);
+}
+
 export function formatGallons(gallons: number): string {
   return ONE_DECIMAL.format(gallons);
 }

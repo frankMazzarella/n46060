@@ -1,14 +1,14 @@
 import type { FlightInputs } from '../model';
 import type { FormField, FormValues } from './form';
 
-export type FieldIssue = 'notANumber';
+export type FieldIssue = 'notANumber' | 'notPositive';
 
 export type ParsedForm =
-  /** Every field holds a valid quantity. */
+  /** Every required field holds a valid quantity. */
   | { readonly status: 'ready'; readonly inputs: FlightInputs }
-  /** Nothing is wrong, but these fields are still blank. */
+  /** Nothing is wrong, but these required fields are still blank. */
   | { readonly status: 'incomplete'; readonly blank: readonly FormField[] }
-  /** These fields hold text that is not a quantity. */
+  /** These fields hold text that is not an acceptable quantity. */
   | {
       readonly status: 'invalid';
       readonly issues: Readonly<Partial<Record<FormField, FieldIssue>>>;
@@ -17,35 +17,62 @@ export type ParsedForm =
 type ParsedQuantity =
   | { readonly kind: 'value'; readonly value: number }
   | { readonly kind: 'blank' }
-  | { readonly kind: 'invalid' };
+  | { readonly kind: 'invalid'; readonly issue: FieldIssue };
 
 /** Plain decimal digits only: "12", "12.5", ".5". No sign, exponent, comma or spaces inside. */
 const QUANTITY_PATTERN = /^(?:\d+\.?\d*|\.\d+)$/;
 
-function parseQuantity(text: string): ParsedQuantity {
+interface FieldRule {
+  /** A blank is never read as zero, except for a field that is optional. */
+  readonly optional: boolean;
+  /** Zero is not a usable value (empty weight is a divisor in the CG). */
+  readonly mustBePositive: boolean;
+}
+
+const REQUIRED: FieldRule = { optional: false, mustBePositive: false };
+
+const FIELD_RULES: Readonly<Record<FormField, FieldRule>> = {
+  emptyWeightLb: { optional: false, mustBePositive: true },
+  emptyMomentLbIn: { optional: false, mustBePositive: true },
+  frontSeatsLb: REQUIRED,
+  rearSeatsLb: REQUIRED,
+  baggageLb: REQUIRED,
+  fuelGallons: REQUIRED,
+  fuelBurnedGallons: { optional: true, mustBePositive: false },
+};
+
+function parseQuantity(text: string, rule: FieldRule): ParsedQuantity {
   const trimmed = text.trim();
   if (trimmed === '') {
-    return { kind: 'blank' };
+    return rule.optional ? { kind: 'value', value: 0 } : { kind: 'blank' };
   }
   if (!QUANTITY_PATTERN.test(trimmed)) {
-    return { kind: 'invalid' };
+    return { kind: 'invalid', issue: 'notANumber' };
   }
   const value = Number(trimmed);
-  return Number.isFinite(value) ? { kind: 'value', value } : { kind: 'invalid' };
+  if (!Number.isFinite(value)) {
+    return { kind: 'invalid', issue: 'notANumber' };
+  }
+  if (rule.mustBePositive && value === 0) {
+    return { kind: 'invalid', issue: 'notPositive' };
+  }
+  return { kind: 'value', value };
 }
 
 /**
  * Turns the typed text into model inputs, or says what is missing or wrong.
  * Strict by design: anything that is not plain decimal digits is rejected
- * rather than guessed at, and a blank is never treated as zero.
+ * rather than guessed at, and a required blank is never treated as zero.
  */
 export function parseForm(values: FormValues): ParsedForm {
   const parsed: Readonly<Record<FormField, ParsedQuantity>> = {
-    frontSeatsLb: parseQuantity(values.frontSeatsLb),
-    rearSeatsLb: parseQuantity(values.rearSeatsLb),
-    baggageLb: parseQuantity(values.baggageLb),
-    fuelGallons: parseQuantity(values.fuelGallons),
-    fuelBurnedGallons: parseQuantity(values.fuelBurnedGallons),
+    emptyWeightLb: parseQuantity(values.emptyWeightLb, FIELD_RULES.emptyWeightLb),
+    emptyMomentLbIn: parseQuantity(values.emptyMomentLbIn, FIELD_RULES.emptyMomentLbIn),
+    frontSeatsLb: parseQuantity(values.frontSeatsLb, FIELD_RULES.frontSeatsLb),
+    rearSeatsLb: parseQuantity(values.rearSeatsLb, FIELD_RULES.rearSeatsLb),
+    baggageLb: parseQuantity(values.baggageLb, FIELD_RULES.baggageLb),
+    fuelGallons: parseQuantity(values.fuelGallons, FIELD_RULES.fuelGallons),
+    fuelBurnedGallons: parseQuantity(values.fuelBurnedGallons, FIELD_RULES.fuelBurnedGallons),
   };
 
   const entries = Object.entries(parsed) as [FormField, ParsedQuantity][];
@@ -53,7 +80,7 @@ export function parseForm(values: FormValues): ParsedForm {
   const issues: Partial<Record<FormField, FieldIssue>> = {};
   for (const [field, quantity] of entries) {
     if (quantity.kind === 'invalid') {
-      issues[field] = 'notANumber';
+      issues[field] = quantity.issue;
     }
   }
   if (Object.keys(issues).length > 0) {
@@ -65,8 +92,18 @@ export function parseForm(values: FormValues): ParsedForm {
     return { status: 'incomplete', blank };
   }
 
-  const { frontSeatsLb, rearSeatsLb, baggageLb, fuelGallons, fuelBurnedGallons } = parsed;
+  const {
+    emptyWeightLb,
+    emptyMomentLbIn,
+    frontSeatsLb,
+    rearSeatsLb,
+    baggageLb,
+    fuelGallons,
+    fuelBurnedGallons,
+  } = parsed;
   if (
+    emptyWeightLb.kind !== 'value' ||
+    emptyMomentLbIn.kind !== 'value' ||
     frontSeatsLb.kind !== 'value' ||
     rearSeatsLb.kind !== 'value' ||
     baggageLb.kind !== 'value' ||
@@ -81,6 +118,8 @@ export function parseForm(values: FormValues): ParsedForm {
   return {
     status: 'ready',
     inputs: {
+      emptyWeightLb: emptyWeightLb.value,
+      emptyMomentLbIn: emptyMomentLbIn.value,
       frontSeatsLb: frontSeatsLb.value,
       rearSeatsLb: rearSeatsLb.value,
       baggageLb: baggageLb.value,

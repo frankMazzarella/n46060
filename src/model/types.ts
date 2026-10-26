@@ -30,6 +30,7 @@ export interface CategoryLimits {
 export interface Aircraft {
   readonly registration: string;
   readonly description: string;
+  /** The empty condition on record. The calculator starts from it; the pilot may override it. */
   readonly emptyWeightLb: number;
   readonly emptyMomentLbIn: number;
   readonly stations: {
@@ -50,8 +51,12 @@ export interface Aircraft {
   readonly forwardLimit: readonly [ForwardLimitPoint, ForwardLimitPoint, ...ForwardLimitPoint[]];
 }
 
-/** What is on board at a moment in time. */
+/** What is on board at a moment in time, starting with the empty airplane as last weighed. */
 export interface LoadInputs {
+  /** Current empty weight. Changes with each annual inspection or equipment change. */
+  readonly emptyWeightLb: number;
+  /** Moment that goes with `emptyWeightLb`. Must come from the same weighing. */
+  readonly emptyMomentLbIn: number;
   readonly frontSeatsLb: number;
   readonly rearSeatsLb: number;
   readonly baggageLb: number;

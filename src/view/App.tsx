@@ -7,10 +7,11 @@ import { Header } from './components/Header';
 import { LoadForm } from './components/LoadForm';
 import { ResultsPanel } from './components/ResultsPanel';
 import { Worksheet } from './components/Worksheet';
-import { describePending } from './messages';
+import { describeEmptyOverride, describePending } from './messages';
 
 function Calculator() {
-  const { form, parsed, assessment, setField, setCategory, clear } = useWeightBalance(N46060);
+  const { form, parsed, assessment, emptyOverridden, setField, setCategory, clear } =
+    useWeightBalance(N46060);
 
   return (
     <div className="app">
@@ -24,12 +25,13 @@ function Calculator() {
           onFieldChange={setField}
           onClear={clear}
         />
+        <EnvelopeChart aircraft={N46060} category={form.category} assessment={assessment} />
         <ResultsPanel
           category={form.category}
           assessment={assessment}
           pendingMessage={parsed.status === 'ready' ? null : describePending(parsed)}
+          notice={emptyOverridden ? describeEmptyOverride(N46060) : null}
         />
-        <EnvelopeChart aircraft={N46060} category={form.category} assessment={assessment} />
         <Worksheet assessment={assessment} />
       </main>
     </div>

@@ -27,6 +27,8 @@ export const TEST_AIRCRAFT: Aircraft = {
 };
 
 export const NO_LOAD: FlightInputs = {
+  emptyWeightLb: TEST_AIRCRAFT.emptyWeightLb,
+  emptyMomentLbIn: TEST_AIRCRAFT.emptyMomentLbIn,
   frontSeatsLb: 0,
   rearSeatsLb: 0,
   baggageLb: 0,

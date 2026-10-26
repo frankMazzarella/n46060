@@ -11,6 +11,8 @@ import { buildLoadCase } from './loadCase';
 describe('N46060 reviewed data', () => {
   it('matches the weighed empty condition', () => {
     const empty = buildLoadCase(N46060, {
+      emptyWeightLb: N46060.emptyWeightLb,
+      emptyMomentLbIn: N46060.emptyMomentLbIn,
       frontSeatsLb: 0,
       rearSeatsLb: 0,
       baggageLb: 0,
@@ -72,6 +74,8 @@ describe('N46060 reviewed data', () => {
 
   it('assesses a worked loading: two up, baggage, full fuel', () => {
     const { takeoff, landing } = assessFlight(N46060, 'normal', {
+      emptyWeightLb: N46060.emptyWeightLb,
+      emptyMomentLbIn: N46060.emptyMomentLbIn,
       frontSeatsLb: 340,
       rearSeatsLb: 0,
       baggageLb: 20,

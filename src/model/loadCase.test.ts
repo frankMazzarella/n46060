@@ -13,6 +13,7 @@ describe('buildLoadCase', () => {
 
   it('totals weight and moment across every station', () => {
     const loadCase = buildLoadCase(TEST_AIRCRAFT, {
+      ...NO_LOAD,
       frontSeatsLb: 100, // moment 1000
       rearSeatsLb: 50, // moment 1000
       baggageLb: 10, // moment 300
@@ -42,6 +43,34 @@ describe('buildLoadCase', () => {
     ['rearSeatsLb', -1],
     ['baggageLb', Number.POSITIVE_INFINITY],
     ['fuelGallons', Number.NEGATIVE_INFINITY],
+  ] as const)('throws when %s is %f', (field, value) => {
+    expect(() => buildLoadCase(TEST_AIRCRAFT, { ...NO_LOAD, [field]: value })).toThrow(RangeError);
+  });
+
+  it('uses the empty weight and moment given, not the ones on the aircraft record', () => {
+    // A new weighing: 1010 lb with a moment of 40,400 lb-in (arm 40.0 in).
+    const loadCase = buildLoadCase(TEST_AIRCRAFT, {
+      ...NO_LOAD,
+      emptyWeightLb: 1010,
+      emptyMomentLbIn: 40_400,
+    });
+
+    expect(loadCase.lines[0]).toEqual({
+      id: 'empty',
+      weightLb: 1010,
+      armIn: 40,
+      momentLbIn: 40_400,
+    });
+    expect(loadCase.weightLb).toBe(1010);
+    expect(loadCase.cgIn).toBe(40);
+  });
+
+  it.each([
+    ['emptyWeightLb', 0],
+    ['emptyWeightLb', -1],
+    ['emptyWeightLb', Number.NaN],
+    ['emptyMomentLbIn', 0],
+    ['emptyMomentLbIn', Number.POSITIVE_INFINITY],
   ] as const)('throws when %s is %f', (field, value) => {
     expect(() => buildLoadCase(TEST_AIRCRAFT, { ...NO_LOAD, [field]: value })).toThrow(RangeError);
   });

@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useReducer } from 'react';
 import { assessFlight } from '../model';
 import type { Aircraft, Category, FlightAssessment } from '../model';
-import { INITIAL_FORM_STATE, formReducer } from './form';
+import { formReducer, initialFormState } from './form';
 import type { FormField, FormState } from './form';
 import { parseForm } from './parseForm';
 import type { ParsedForm } from './parseForm';
@@ -9,8 +9,10 @@ import type { ParsedForm } from './parseForm';
 export interface WeightBalanceController {
   readonly form: FormState;
   readonly parsed: ParsedForm;
-  /** Null until every field holds a valid quantity. */
+  /** Null until every required field holds a valid quantity. */
   readonly assessment: FlightAssessment | null;
+  /** True when the empty weight or moment in use differs from the aircraft's weighed record. */
+  readonly emptyOverridden: boolean;
   readonly setField: (field: FormField, value: string) => void;
   readonly setCategory: (category: Category) => void;
   readonly clear: () => void;
@@ -23,7 +25,7 @@ export interface WeightBalanceController {
  * previous flight can never be mistaken for the current one.
  */
 export function useWeightBalance(aircraft: Aircraft): WeightBalanceController {
-  const [form, dispatch] = useReducer(formReducer, INITIAL_FORM_STATE);
+  const [form, dispatch] = useReducer(formReducer, aircraft, initialFormState);
 
   const parsed = useMemo(() => parseForm(form.values), [form.values]);
 
@@ -32,6 +34,11 @@ export function useWeightBalance(aircraft: Aircraft): WeightBalanceController {
     [aircraft, form.category, parsed],
   );
 
+  const emptyOverridden =
+    parsed.status === 'ready' &&
+    (parsed.inputs.emptyWeightLb !== aircraft.emptyWeightLb ||
+      parsed.inputs.emptyMomentLbIn !== aircraft.emptyMomentLbIn);
+
   const setField = useCallback((field: FormField, value: string) => {
     dispatch({ type: 'fieldChanged', field, value });
   }, []);
@@ -39,8 +46,8 @@ export function useWeightBalance(aircraft: Aircraft): WeightBalanceController {
     dispatch({ type: 'categoryChanged', category });
   }, []);
   const clear = useCallback(() => {
-    dispatch({ type: 'cleared' });
-  }, []);
+    dispatch({ type: 'cleared', values: initialFormState(aircraft).values });
+  }, [aircraft]);
 
-  return { form, parsed, assessment, setField, setCategory, clear };
+  return { form, parsed, assessment, emptyOverridden, setField, setCategory, clear };
 }

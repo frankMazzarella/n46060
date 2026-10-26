@@ -51,14 +51,21 @@ interface ResultsPanelProps {
   readonly assessment: FlightAssessment | null;
   /** Shown instead of results while the form cannot be assessed. */
   readonly pendingMessage: string | null;
+  /** Shown above the results when the empty condition differs from the record. */
+  readonly notice: string | null;
 }
 
-export function ResultsPanel({ category, assessment, pendingMessage }: ResultsPanelProps) {
+export function ResultsPanel({ category, assessment, pendingMessage, notice }: ResultsPanelProps) {
   return (
     <Panel title="Result">
       <p className="results__basis">
         Checked against {CATEGORY_LABELS[category].toLowerCase()} category limits.
       </p>
+      {notice ? (
+        <p className="results__notice" role="note">
+          <strong>Empty weight changed.</strong> {notice}
+        </p>
+      ) : null}
       <div className="results" aria-live="polite">
         {assessment ? (
           <>

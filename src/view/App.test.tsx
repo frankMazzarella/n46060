@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { App } from './App';
@@ -46,7 +46,7 @@ describe('App', () => {
   it('shows no results until every field is filled in', () => {
     render(<App />);
 
-    expect(screen.getByText(/enter a value in every field/i)).toBeInTheDocument();
+    expect(screen.getByText(/enter a value in every load field/i)).toBeInTheDocument();
     expect(screen.queryByText(/within limits/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/out of limits/i)).not.toBeInTheDocument();
   });
@@ -55,10 +55,10 @@ describe('App', () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await enter(user, { ...TWO_UP, burn: '' });
+    await enter(user, { ...TWO_UP, fuel: '' });
     expect(screen.queryByText(/within limits/i)).not.toBeInTheDocument();
 
-    await user.type(screen.getByLabelText(FIELD_LABELS.burn), '8');
+    await user.type(screen.getByLabelText(FIELD_LABELS.fuel), '38');
     expect(within(phase('Takeoff')).getByText('Within limits')).toBeInTheDocument();
   });
 
@@ -149,7 +149,7 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: /clear all/i }));
 
     expect(screen.getByLabelText(FIELD_LABELS.front)).toHaveValue('');
-    expect(screen.getByText(/enter a value in every field/i)).toBeInTheDocument();
+    expect(screen.getByText(/enter a value in every load field/i)).toBeInTheDocument();
   });
 
   it('lists the takeoff worksheet with the empty airplane figures', async () => {
@@ -162,5 +162,73 @@ describe('App', () => {
     expect(within(row).getByText('1,392.0')).toBeInTheDocument();
     expect(within(row).getByText('38.31')).toBeInTheDocument();
     expect(within(row).getByText('53.33')).toBeInTheDocument();
+  });
+
+  it('treats a blank fuel burned as none, so landing weighs the same as takeoff', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await enter(user, { ...TWO_UP, burn: '' });
+
+    expect(within(phase('Takeoff')).getByText('1,980.0 lb')).toBeInTheDocument();
+    expect(within(phase('Landing')).getByText('1,980.0 lb')).toBeInTheDocument();
+  });
+
+  it('starts the empty weight at the value on record, with no warning', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    expect(screen.getByLabelText(/^empty weight/i)).toHaveValue('1392');
+    expect(screen.getByLabelText(/^empty moment/i)).toHaveValue('53325.6');
+    expect(screen.getByRole('slider', { name: /empty weight/i })).toHaveValue('1392');
+
+    await enter(user, TWO_UP);
+    expect(screen.queryByText(/empty weight changed/i)).not.toBeInTheDocument();
+  });
+
+  it('follows the slider: a heavier empty weight raises the totals and shows a warning', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await enter(user, TWO_UP);
+
+    fireEvent.change(screen.getByRole('slider', { name: /empty weight/i }), {
+      target: { value: '1402' },
+    });
+
+    expect(screen.getByLabelText(/^empty weight/i)).toHaveValue('1402');
+    expect(within(phase('Takeoff')).getByText('1,990.0 lb')).toBeInTheDocument();
+    expect(screen.getByText(/empty weight changed/i)).toBeInTheDocument();
+  });
+
+  it('puts the empty airplane back on record with the reset button', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await enter(user, TWO_UP);
+    await user.clear(screen.getByLabelText(/^empty weight/i));
+    await user.type(screen.getByLabelText(/^empty weight/i), '1402');
+
+    await user.click(screen.getByRole('button', { name: /reset to record/i }));
+
+    expect(screen.getByLabelText(/^empty weight/i)).toHaveValue('1392');
+    expect(screen.getByLabelText(/^empty moment/i)).toHaveValue('53325.6');
+    expect(screen.queryByText(/empty weight changed/i)).not.toBeInTheDocument();
+  });
+
+  it('refuses an empty weight of zero rather than dividing by it', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await enter(user, TWO_UP);
+
+    await user.clear(screen.getByLabelText(/^empty weight/i));
+    await user.type(screen.getByLabelText(/^empty weight/i), '0');
+
+    expect(screen.getByText('Enter a number greater than 0.')).toBeInTheDocument();
+    expect(screen.queryByText(/within limits/i)).not.toBeInTheDocument();
+  });
+
+  it('warns that this is beta software not for real-world use', () => {
+    render(<App />);
+
+    expect(screen.getByText(/beta software/i)).toBeInTheDocument();
   });
 });

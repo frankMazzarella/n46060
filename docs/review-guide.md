@@ -30,7 +30,7 @@ Dependencies only point one way: view → controller → model. The model import
 
 - **Fail loudly on bad numbers.** NaN fails every `<` and `>` comparison, so an unguarded check would report "within limits". `buildLoadCase`, `assessFlight` and `checkEnvelope` throw `RangeError` on a negative or non-finite value (`src/model/quantity.ts`). The app-level `ErrorBoundary` then replaces the whole page with a warning instead of showing a result.
 - **Strict input parsing.** `parseForm` accepts plain decimal digits only. `-5`, `1e3`, `1,5`, `Infinity` and `12a` are rejected. A blank field is never treated as zero.
-- **Every field starts blank.** The pilot must enter each quantity, including 0, so no value is assumed. Nothing is saved between visits, so a loading from a previous flight cannot be mistaken for the current one. There is no local storage and no editable aircraft data.
+- **Every load field starts blank.** The pilot must enter each load quantity, including 0, so no value is assumed. Two exceptions, both deliberate: fuel burned is optional (blank means none, landing equals takeoff), and the empty weight and moment start at the weighed record and may be overridden. Empty weight and moment must be above zero (the weight is a divisor in the CG), and results warn whenever either differs from the record. Nothing is saved between visits, so a loading from a previous flight cannot be mistaken for the current one. There is no local storage and no editable aircraft data.
 - **Aircraft data is code, not configuration.** It lives in `src/model/aircraft.ts`, is pinned by tests, and changes through review.
 - **Limits are inclusive and exact.** A load exactly on a limit passes and anything beyond it fails, with no rounding tolerance. Floating point can in principle make a load exactly on a limit fail by one part in 10^14, which errs on the cautious side.
 - **A failing margin never displays as zero.** `formatExcess` shows "less than 0.01" instead of "0.00".
@@ -44,7 +44,7 @@ Dependencies only point one way: view → controller → model. The model import
 
 - **Model.** Totals and CG on hand-calculated cases. Forward limit at, between and beyond its points. Inclusive boundaries on every limit, one step either side. Every violation kind. Invalid numbers throw. The N46060 data is pinned, including a worked loading checked by hand (1,980 lb, CG 39.77 in).
 - **Controller.** The parser against valid, invalid and blank text, including values a browser number field would silently mangle. The reducer. The hook.
-- **View.** The real app, driven as a user would: no results until complete, results on completion, overweight, bad text, category switch, burn greater than fuel, clear, worksheet, off-chart label. The error boundary replaces the page when something throws.
+- **View.** The real app, driven as a user would: no results until complete, results on completion, overweight, bad text, category switch, burn greater than fuel, blank burn, empty weight slider and reset, clear, worksheet, off-chart label. The error boundary replaces the page when something throws.
 
 Not covered: the chart's geometry beyond its scale helpers, and any browser other than jsdom. The layout was checked by hand in Chromium at 1280 and 390 px wide, in light and dark.
 

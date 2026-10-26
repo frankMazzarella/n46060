@@ -7,8 +7,9 @@ import './Disclaimer.css';
 export function Disclaimer() {
   return (
     <aside className="disclaimer" aria-label="Limitations of this tool">
-      <strong>Planning aid only.</strong> The pilot in command is responsible for the final weight
-      and balance. The station arms and envelope limits were read from photographs of the handbook
+      <strong>Planning aid only.</strong> This is beta software and is not intended for real-world
+      use until it is complete. The pilot in command is responsible for the final weight and
+      balance. The station arms and envelope limits were read from photographs of the handbook
       graphs and are not yet verified against the airplane&apos;s records.
     </aside>
   );

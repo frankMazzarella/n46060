@@ -3,17 +3,28 @@ import type { FieldIssue } from '../../controller';
 import { describeIssue } from '../messages';
 import './QuantityField.css';
 
+export type QuantityUnit = 'lb' | 'gal' | 'lb-in';
+
 interface QuantityFieldProps {
   readonly label: string;
-  readonly unit: 'lb' | 'gal';
+  readonly unit: QuantityUnit;
   readonly hint?: string;
   readonly value: string;
+  readonly placeholder?: string;
   readonly issue: FieldIssue | undefined;
   readonly onChange: (value: string) => void;
 }
 
 /** A labelled text box for one quantity, with its hint and any problem with what was typed. */
-export function QuantityField({ label, unit, hint, value, issue, onChange }: QuantityFieldProps) {
+export function QuantityField({
+  label,
+  unit,
+  hint,
+  value,
+  placeholder = '0',
+  issue,
+  onChange,
+}: QuantityFieldProps) {
   const id = useId();
   const hintId = `${id}-hint`;
   const issueId = `${id}-issue`;
@@ -30,7 +41,7 @@ export function QuantityField({ label, unit, hint, value, issue, onChange }: Qua
         type="text"
         inputMode="decimal"
         autoComplete="off"
-        placeholder="0"
+        placeholder={placeholder}
         value={value}
         aria-invalid={issue !== undefined}
         aria-describedby={describedBy || undefined}

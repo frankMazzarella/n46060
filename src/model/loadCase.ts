@@ -1,4 +1,4 @@
-import { assertQuantity } from './quantity';
+import { assertPositive, assertQuantity } from './quantity';
 import type { Aircraft, LoadCase, LoadInputs, LoadLine, LoadLineId } from './types';
 
 function stationLine(id: LoadLineId, weightLb: number, armIn: number): LoadLine {
@@ -10,11 +10,14 @@ function sum(lines: readonly LoadLine[], pick: (line: LoadLine) => number): numb
 }
 
 /**
- * Totals the empty airplane plus everything on board into a weight, moment and CG.
+ * Totals the empty airplane (as given in the inputs) plus everything on board into a weight, moment and CG.
  *
  * @throws RangeError if any input is negative or not a finite number.
  */
 export function buildLoadCase(aircraft: Aircraft, inputs: LoadInputs): LoadCase {
+  // Weight is a divisor in the CG, so an empty weight of zero is as invalid as a negative one.
+  assertPositive('emptyWeightLb', inputs.emptyWeightLb);
+  assertPositive('emptyMomentLbIn', inputs.emptyMomentLbIn);
   assertQuantity('frontSeatsLb', inputs.frontSeatsLb);
   assertQuantity('rearSeatsLb', inputs.rearSeatsLb);
   assertQuantity('baggageLb', inputs.baggageLb);
@@ -25,9 +28,9 @@ export function buildLoadCase(aircraft: Aircraft, inputs: LoadInputs): LoadCase 
   const lines: readonly LoadLine[] = [
     {
       id: 'empty',
-      weightLb: aircraft.emptyWeightLb,
-      armIn: aircraft.emptyMomentLbIn / aircraft.emptyWeightLb,
-      momentLbIn: aircraft.emptyMomentLbIn,
+      weightLb: inputs.emptyWeightLb,
+      armIn: inputs.emptyMomentLbIn / inputs.emptyWeightLb,
+      momentLbIn: inputs.emptyMomentLbIn,
     },
     stationLine('frontSeats', inputs.frontSeatsLb, stations.frontSeats.armIn),
     stationLine('rearSeats', inputs.rearSeatsLb, stations.rearSeats.armIn),

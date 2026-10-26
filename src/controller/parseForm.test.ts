@@ -1,9 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { INITIAL_FORM_STATE } from './form';
+import { TEST_AIRCRAFT } from '../test/fixtures';
+import { initialFormState } from './form';
 import type { FormValues } from './form';
 import { parseForm } from './parseForm';
 
+const INITIAL_FORM_STATE = initialFormState(TEST_AIRCRAFT);
+
 const FILLED: FormValues = {
+  emptyWeightLb: '1000',
+  emptyMomentLbIn: '40000',
   frontSeatsLb: '340',
   rearSeatsLb: '0',
   baggageLb: '20',
@@ -16,6 +21,8 @@ describe('parseForm', () => {
     expect(parseForm(FILLED)).toEqual({
       status: 'ready',
       inputs: {
+        emptyWeightLb: 1000,
+        emptyMomentLbIn: 40_000,
         frontSeatsLb: 340,
         rearSeatsLb: 0,
         baggageLb: 20,
@@ -25,10 +32,47 @@ describe('parseForm', () => {
     });
   });
 
-  it('is incomplete, listing the blank fields, when nothing has been entered', () => {
+  it('is incomplete, listing the blank required fields, when no load has been entered', () => {
     expect(parseForm(INITIAL_FORM_STATE.values)).toEqual({
       status: 'incomplete',
-      blank: ['frontSeatsLb', 'rearSeatsLb', 'baggageLb', 'fuelGallons', 'fuelBurnedGallons'],
+      blank: ['frontSeatsLb', 'rearSeatsLb', 'baggageLb', 'fuelGallons'],
+    });
+  });
+
+  it('reads a blank fuel burned as none, because that field is optional', () => {
+    for (const blank of ['', '   ']) {
+      expect(parseForm({ ...FILLED, fuelBurnedGallons: blank })).toMatchObject({
+        status: 'ready',
+        inputs: { fuelBurnedGallons: 0 },
+      });
+    }
+  });
+
+  it.each(['emptyWeightLb', 'emptyMomentLbIn'] as const)(
+    'never reads a blank %s as zero',
+    (field) => {
+      expect(parseForm({ ...FILLED, [field]: '' })).toEqual({
+        status: 'incomplete',
+        blank: [field],
+      });
+    },
+  );
+
+  it.each(['emptyWeightLb', 'emptyMomentLbIn'] as const)('rejects zero for %s', (field) => {
+    expect(parseForm({ ...FILLED, [field]: '0' })).toEqual({
+      status: 'invalid',
+      issues: { [field]: 'notPositive' },
+    });
+  });
+
+  it('still allows zero for the load fields', () => {
+    expect(parseForm({ ...FILLED, baggageLb: '0' })).toMatchObject({ status: 'ready' });
+  });
+
+  it('rejects text in fuel burned like any other field', () => {
+    expect(parseForm({ ...FILLED, fuelBurnedGallons: 'x' })).toEqual({
+      status: 'invalid',
+      issues: { fuelBurnedGallons: 'notANumber' },
     });
   });
 
