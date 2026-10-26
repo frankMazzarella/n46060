@@ -1,8 +1,8 @@
 import './Disclaimer.css';
 
 /**
- * Stays until the aircraft data has been verified against the airplane's
- * current records. See docs/aircraft-data.md for what is still unverified.
+ * TODO(V5): stays until the aircraft data has been verified against the
+ * airplane's current records. See TODO.md and docs/aircraft-data.md.
  */
 export function Disclaimer() {
   return (

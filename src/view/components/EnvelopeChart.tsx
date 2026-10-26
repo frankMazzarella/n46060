@@ -8,6 +8,8 @@ import { CATEGORY_LABELS } from '../messages';
 import { Panel } from './Panel';
 import './EnvelopeChart.css';
 
+// TODO(V6): the chart's drawing and marker placement have no automated test
+// beyond the scale helpers. They were checked by eye in Chromium only.
 const VIEW_WIDTH = 480;
 const VIEW_HEIGHT = 400;
 const MARGIN = { top: 16, right: 12, bottom: 52, left: 60 } as const;

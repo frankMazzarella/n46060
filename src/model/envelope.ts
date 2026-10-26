@@ -13,6 +13,10 @@ export interface EnvelopePoint {
 /**
  * Forward CG limit in inches aft of datum at a given weight. Linear between
  * the aircraft's forward-limit points, held constant outside them.
+ *
+ * TODO(V4): this interpolates in arm. The handbook chart draws a straight line
+ * in moment space, which is stricter by up to 0.144 in near 2,120 lb for
+ * N46060. Decide which is authoritative.
  */
 export function forwardLimitIn(aircraft: Aircraft, weightLb: number): number {
   const [first, ...rest] = aircraft.forwardLimit;

@@ -4,6 +4,8 @@ Weight and balance calculator for N46060, a 1968 Cessna 172I. Enter what is on b
 
 **Planning aid only.** The pilot in command is responsible for the final weight and balance. The station arms and envelope limits were read from photographs of the handbook graphs and are not yet verified. See [`docs/aircraft-data.md`](docs/aircraft-data.md).
 
+**Open items.** Six things must be settled before this is relied on, and the first is a limit that may be too generous in the dangerous direction. They are listed in [`TODO.md`](TODO.md), and the matching spots in the code carry `TODO(Vn)` comments (`grep -rn "TODO(V" src`).
+
 ## Development
 
 Requires Node 22 (see `.nvmrc`).
