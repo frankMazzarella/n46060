@@ -25,9 +25,10 @@
 }
 
 .segmented__label {
-  padding: var(--space-2) var(--space-4);
+  padding: var(--space-3) var(--space-5);
   background: var(--color-surface);
   color: var(--color-text);
+  font-size: var(--text-lg);
   font-weight: 600;
 }
 
