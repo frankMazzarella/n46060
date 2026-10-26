@@ -10,7 +10,8 @@
 
 /* Styled like aircraft registration lettering: squared bold letters slanted 20 degrees. */
 .header__registration {
-  display: inline-block;
+  /* A block, not inline-block: inline-block leaves a gap under the text that throws off the toggle. */
+  width: fit-content;
   margin: 0;
   font-family: 'Barlow', var(--font-ui);
   font-size: 2.25rem;
