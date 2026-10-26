@@ -46,20 +46,17 @@
   font-family: var(--font-ui);
 }
 
+/* Summary and body each carry their own padding, so no gap shows between them when open. */
 .empty-airplane[open] > .empty-airplane__summary {
-  padding-bottom: 0;
+  padding-bottom: var(--space-2);
 }
 
-/* The open body: everything after the summary, spaced inside the border. */
-.empty-airplane[open] {
+.empty-airplane__body {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  padding-bottom: var(--space-3);
-}
-
-.empty-airplane[open] > :not(summary) {
-  margin-inline: var(--space-3);
+  padding: var(--space-3);
+  padding-top: 0;
 }
 
 .empty-airplane__hint {
@@ -69,8 +66,8 @@
 }
 
 .empty-airplane__slider {
-  width: calc(100% - 2 * var(--space-3));
-  margin-block: 0;
+  width: 100%;
+  margin: 0;
 }
 
 .empty-airplane__reset {

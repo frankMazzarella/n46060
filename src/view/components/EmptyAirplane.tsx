@@ -60,52 +60,54 @@ export function EmptyAirplane({
           ) : null}
         </span>
       </summary>
-      <p className="empty-airplane__hint">
-        On record: {formatWeightLb(aircraft.emptyWeightLb)} lb,{' '}
-        {formatMomentLbIn(aircraft.emptyMomentLbIn)} lb-in. The slider estimates the moment at the
-        same empty CG. Type both boxes for figures from a new weighing.
-      </p>
-      <input
-        className="empty-airplane__slider"
-        id={sliderId}
-        type="range"
-        min={min}
-        max={max}
-        step={1}
-        value={sliderValue}
-        aria-label="Slider for empty weight"
-        onChange={(event) => {
-          onSlide(event.target.valueAsNumber);
-        }}
-      />
-      <QuantityField
-        label="Empty weight"
-        unit="lb"
-        value={values.emptyWeightLb}
-        issue={issues.emptyWeightLb}
-        onChange={(value) => {
-          onFieldChange('emptyWeightLb', value);
-        }}
-      />
-      <QuantityField
-        label="Empty moment"
-        unit="lb-in"
-        value={values.emptyMomentLbIn}
-        issue={issues.emptyMomentLbIn}
-        onChange={(value) => {
-          onFieldChange('emptyMomentLbIn', value);
-        }}
-      />
-      <button
-        className="button empty-airplane__reset"
-        type="button"
-        onClick={() => {
-          onFieldChange('emptyWeightLb', String(aircraft.emptyWeightLb));
-          onFieldChange('emptyMomentLbIn', String(aircraft.emptyMomentLbIn));
-        }}
-      >
-        Reset to record
-      </button>
+      <div className="empty-airplane__body">
+        <p className="empty-airplane__hint">
+          On record: {formatWeightLb(aircraft.emptyWeightLb)} lb,{' '}
+          {formatMomentLbIn(aircraft.emptyMomentLbIn)} lb-in. The slider estimates the moment at the
+          same empty CG. Type both boxes for figures from a new weighing.
+        </p>
+        <input
+          className="empty-airplane__slider"
+          id={sliderId}
+          type="range"
+          min={min}
+          max={max}
+          step={1}
+          value={sliderValue}
+          aria-label="Slider for empty weight"
+          onChange={(event) => {
+            onSlide(event.target.valueAsNumber);
+          }}
+        />
+        <QuantityField
+          label="Empty weight"
+          unit="lb"
+          value={values.emptyWeightLb}
+          issue={issues.emptyWeightLb}
+          onChange={(value) => {
+            onFieldChange('emptyWeightLb', value);
+          }}
+        />
+        <QuantityField
+          label="Empty moment"
+          unit="lb-in"
+          value={values.emptyMomentLbIn}
+          issue={issues.emptyMomentLbIn}
+          onChange={(value) => {
+            onFieldChange('emptyMomentLbIn', value);
+          }}
+        />
+        <button
+          className="button empty-airplane__reset"
+          type="button"
+          onClick={() => {
+            onFieldChange('emptyWeightLb', String(aircraft.emptyWeightLb));
+            onFieldChange('emptyMomentLbIn', String(aircraft.emptyMomentLbIn));
+          }}
+        >
+          Reset to record
+        </button>
+      </div>
     </details>
   );
 }
