@@ -1,0 +1,19 @@
+.crash {
+  padding: var(--space-4);
+  border: 2px solid var(--color-danger-text);
+  border-radius: var(--radius);
+  background: var(--color-danger-bg);
+  color: var(--color-danger-text);
+}
+
+.crash__title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-lg);
+}
+
+.crash__detail {
+  margin: 0;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}

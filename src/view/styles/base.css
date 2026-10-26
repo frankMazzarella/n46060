@@ -1,0 +1,75 @@
+/* Element defaults and the shared page layout. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  font-size: var(--text-base);
+  line-height: 1.4;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.button {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: var(--color-text);
+  color: var(--color-surface);
+}
+
+/* Page frame. One grid with one gap holds every panel, so gutters line up. */
+
+.app {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 64rem;
+  margin: 0 auto;
+  padding-block: var(--space-5);
+  padding-left: max(var(--space-4), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--space-4), env(safe-area-inset-right, 0px));
+}
+
+.dashboard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+}
+
+@media (min-width: 56rem) {
+  .dashboard {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

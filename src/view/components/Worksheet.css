@@ -1,0 +1,66 @@
+.worksheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  overflow-x: auto;
+}
+
+.worksheet__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.worksheet__table th,
+.worksheet__table td {
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: top;
+}
+
+.worksheet__table thead th {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-align: right;
+  text-transform: uppercase;
+  vertical-align: bottom;
+}
+
+.worksheet__table thead th:first-child {
+  text-align: left;
+}
+
+.worksheet__table th[scope='row'] {
+  font-weight: 500;
+  text-align: left;
+}
+
+.worksheet__table td {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+@media (max-width: 30rem) {
+  .worksheet__table th,
+  .worksheet__table td {
+    padding-inline: var(--space-1);
+  }
+}
+
+.worksheet__table tfoot th,
+.worksheet__table tfoot td {
+  font-weight: 700;
+}
+
+.worksheet__table tfoot tr:first-child > * {
+  border-top: 2px solid var(--color-border-strong);
+}
+
+.worksheet__note {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}

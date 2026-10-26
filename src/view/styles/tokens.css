@@ -1,0 +1,64 @@
+/* Design tokens. Components read these and never hard-code a colour or a size. */
+
+:root {
+  color-scheme: light dark;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+
+  --radius: 0.375rem;
+
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.75rem;
+
+  --font-ui: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+
+  --color-bg: #eef1f4;
+  --color-surface: #ffffff;
+  --color-text: #14212e;
+  --color-text-muted: #4d5b69;
+  --color-border: #c9d1d9;
+  --color-border-strong: #14212e;
+  --color-focus: #0b5cad;
+
+  --color-ok-text: #14663a;
+  --color-ok-bg: #dcf0e3;
+  --color-danger-text: #a3211a;
+  --color-danger-bg: #f8dedc;
+  --color-warn-text: #6b4200;
+  --color-warn-bg: #fbeccb;
+
+  --color-chart-normal: #14663a;
+  --color-chart-utility: #a74a00;
+  --color-chart-grid: #d5dbe1;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #0f1822;
+    --color-surface: #17232f;
+    --color-text: #e6ebf0;
+    --color-text-muted: #9fb0c0;
+    --color-border: #2b3b4a;
+    --color-border-strong: #e6ebf0;
+    --color-focus: #6cb2ff;
+
+    --color-ok-text: #7fe0a3;
+    --color-ok-bg: #123524;
+    --color-danger-text: #ff9d94;
+    --color-danger-bg: #3d1a18;
+    --color-warn-text: #f2c46b;
+    --color-warn-bg: #3a2c0c;
+
+    --color-chart-normal: #5fd08a;
+    --color-chart-utility: #f59e4b;
+    --color-chart-grid: #2b3b4a;
+  }
+}

@@ -1,0 +1,20 @@
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 2px solid var(--color-border-strong);
+}
+
+.header__registration {
+  margin: 0;
+  font-size: var(--text-xl);
+  line-height: 1.1;
+}
+
+.header__description {
+  margin: 0;
+  color: var(--color-text-muted);
+}

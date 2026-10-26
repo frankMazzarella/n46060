@@ -1,0 +1,106 @@
+.chart {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.chart text {
+  fill: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.chart__grid {
+  stroke: var(--color-chart-grid);
+  stroke-dasharray: 2 4;
+}
+
+.chart__axis {
+  stroke: var(--color-border-strong);
+}
+
+.chart text.chart__axis-title {
+  fill: var(--color-text);
+  font-size: 14px;
+}
+
+.chart__outline {
+  fill: none;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.chart__outline--normal {
+  stroke: var(--color-chart-normal);
+}
+
+.chart__outline--utility {
+  stroke: var(--color-chart-utility);
+  stroke-dasharray: 7 5;
+}
+
+.chart__outline--active {
+  fill-opacity: 0.14;
+  stroke-width: 3;
+}
+
+.chart__outline--normal.chart__outline--active {
+  fill: var(--color-chart-normal);
+}
+
+.chart__outline--utility.chart__outline--active {
+  fill: var(--color-chart-utility);
+}
+
+.chart__flight-path {
+  stroke: var(--color-text);
+  stroke-dasharray: 4 3;
+}
+
+.chart__marker--ok {
+  fill: var(--color-ok-text);
+}
+
+.chart__marker--danger {
+  fill: var(--color-danger-text);
+}
+
+.chart__marker circle,
+.chart__marker rect {
+  stroke: var(--color-surface);
+  stroke-width: 2;
+}
+
+.chart text.chart__marker-label {
+  fill: var(--color-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.chart__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
+  padding: 0;
+  font-size: var(--text-sm);
+  list-style: none;
+}
+
+.chart__legend-item::before {
+  display: inline-block;
+  width: 1.5rem;
+  margin-right: var(--space-2);
+  border-top: 3px solid;
+  content: '';
+  vertical-align: middle;
+}
+
+.chart__legend-item--normal::before {
+  border-color: var(--color-chart-normal);
+}
+
+.chart__legend-item--utility::before {
+  border-top-style: dashed;
+  border-color: var(--color-chart-utility);
+}
