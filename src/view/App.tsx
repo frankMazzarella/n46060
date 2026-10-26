@@ -30,6 +30,7 @@ function Calculator() {
           aircraft={N46060}
           values={form.values}
           parsed={parsed}
+          emptyOverridden={emptyOverridden}
           onFieldChange={setField}
           onSlideEmptyWeight={slideEmptyWeight}
           onClear={clear}

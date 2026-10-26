@@ -3,7 +3,7 @@ import { assessFlight } from '../model';
 import type { Aircraft, Category, FlightAssessment } from '../model';
 import { formReducer, initialFormState } from './form';
 import type { FormField, FormState } from './form';
-import { parseForm } from './parseForm';
+import { parseDecimal, parseForm } from './parseForm';
 import type { ParsedForm } from './parseForm';
 
 export interface WeightBalanceController {
@@ -11,7 +11,7 @@ export interface WeightBalanceController {
   readonly parsed: ParsedForm;
   /** Null until every required field holds a valid quantity. */
   readonly assessment: FlightAssessment | null;
-  /** True when the empty weight or moment in use differs from the aircraft's weighed record. */
+  /** True when the empty weight or moment in the boxes differs from the aircraft's weighed record. */
   readonly emptyOverridden: boolean;
   readonly setField: (field: FormField, value: string) => void;
   /** Sets the empty weight from the slider and estimates the moment at the same empty CG. */
@@ -36,10 +36,11 @@ export function useWeightBalance(aircraft: Aircraft): WeightBalanceController {
     [aircraft, form.category, parsed],
   );
 
+  // Judged from the empty fields alone, so it holds before the load is filled in.
+  // A blank or unreadable box counts as different from the record.
   const emptyOverridden =
-    parsed.status === 'ready' &&
-    (parsed.inputs.emptyWeightLb !== aircraft.emptyWeightLb ||
-      parsed.inputs.emptyMomentLbIn !== aircraft.emptyMomentLbIn);
+    parseDecimal(form.values.emptyWeightLb) !== aircraft.emptyWeightLb ||
+    parseDecimal(form.values.emptyMomentLbIn) !== aircraft.emptyMomentLbIn;
 
   const setField = useCallback((field: FormField, value: string) => {
     dispatch({ type: 'fieldChanged', field, value });

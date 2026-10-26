@@ -43,6 +43,7 @@ interface LoadFormProps {
   readonly values: FormState['values'];
   readonly parsed: ParsedForm;
   readonly onFieldChange: (field: FormField, value: string) => void;
+  readonly emptyOverridden: boolean;
   readonly onSlideEmptyWeight: (weightLb: number) => void;
   readonly onClear: () => void;
 }
@@ -51,6 +52,7 @@ export function LoadForm({
   aircraft,
   values,
   parsed,
+  emptyOverridden,
   onFieldChange,
   onSlideEmptyWeight,
   onClear,
@@ -79,6 +81,7 @@ export function LoadForm({
         issues={issues}
         onFieldChange={onFieldChange}
         onSlide={onSlideEmptyWeight}
+        overridden={emptyOverridden}
       />
       <button className="button load-form__clear" type="button" onClick={onClear}>
         Clear all

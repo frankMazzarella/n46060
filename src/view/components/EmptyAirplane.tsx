@@ -14,6 +14,14 @@ interface EmptyAirplaneProps {
   readonly issues: Readonly<Partial<Record<FormField, FieldIssue>>>;
   readonly onFieldChange: (field: FormField, value: string) => void;
   readonly onSlide: (weightLb: number) => void;
+  /** True when the weight or moment in use differs from the aircraft's record. */
+  readonly overridden: boolean;
+}
+
+/** A typed value as it will be used: formatted when it is a number, as typed otherwise. */
+function describeTyped(text: string, format: (value: number) => string): string {
+  const value = Number(text);
+  return text.trim() !== '' && Number.isFinite(value) ? format(value) : text.trim() || 'blank';
 }
 
 /**
@@ -28,6 +36,7 @@ export function EmptyAirplane({
   issues,
   onFieldChange,
   onSlide,
+  overridden,
 }: EmptyAirplaneProps) {
   const sliderId = useId();
   const min = aircraft.emptyWeightLb - SLIDER_SPAN_LB;
@@ -40,8 +49,17 @@ export function EmptyAirplane({
       : aircraft.emptyWeightLb;
 
   return (
-    <fieldset className="empty-airplane">
-      <legend className="empty-airplane__legend">Empty airplane</legend>
+    <details className="empty-airplane">
+      <summary className="empty-airplane__summary">
+        <span className="empty-airplane__title">Empty airplane</span>
+        <span className="empty-airplane__values">
+          {describeTyped(values.emptyWeightLb, formatWeightLb)} lb ·{' '}
+          {describeTyped(values.emptyMomentLbIn, formatMomentLbIn)} lb-in
+          {overridden ? (
+            <strong className="empty-airplane__changed"> · changed from record</strong>
+          ) : null}
+        </span>
+      </summary>
       <p className="empty-airplane__hint">
         On record: {formatWeightLb(aircraft.emptyWeightLb)} lb,{' '}
         {formatMomentLbIn(aircraft.emptyMomentLbIn)} lb-in. The slider estimates the moment at the
@@ -88,6 +106,6 @@ export function EmptyAirplane({
       >
         Reset to record
       </button>
-    </fieldset>
+    </details>
   );
 }

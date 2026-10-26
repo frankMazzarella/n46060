@@ -243,4 +243,30 @@ describe('App', () => {
 
     expect(screen.getByText(/beta software/i)).toBeInTheDocument();
   });
+
+  it('keeps the empty airplane collapsed by default, showing the values in use', () => {
+    render(<App />);
+
+    const summary = screen.getByText('Empty airplane').closest('summary');
+    expect(summary).toHaveTextContent('1,392.0 lb · 53,325.6 lb-in');
+    expect(summary?.closest('details')).not.toHaveAttribute('open');
+    expect(screen.queryByText(/changed from record/i)).not.toBeInTheDocument();
+  });
+
+  it('opens the empty airplane to edit it, and the summary shows what changed', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByText('Empty airplane'));
+    const details = screen.getByText('Empty airplane').closest('details');
+    expect(details).toHaveAttribute('open');
+
+    fireEvent.change(screen.getByRole('slider', { name: /empty weight/i }), {
+      target: { value: '1402' },
+    });
+
+    expect(screen.getByText('Empty airplane').closest('summary')).toHaveTextContent(
+      '1,402.0 lb · 53,708.7 lb-in · changed from record',
+    );
+  });
 });

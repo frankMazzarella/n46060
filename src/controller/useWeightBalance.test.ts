@@ -120,4 +120,22 @@ describe('useWeightBalance', () => {
 
     expect(result.current.form.values.emptyWeightLb).toBe('1000');
   });
+
+  it('flags a changed empty condition before the load is filled in', () => {
+    const { result } = renderHook(() => useWeightBalance(TEST_AIRCRAFT));
+    expect(result.current.emptyOverridden).toBe(false);
+
+    fill(result, { emptyWeightLb: '1010' });
+
+    expect(result.current.parsed.status).toBe('incomplete');
+    expect(result.current.emptyOverridden).toBe(true);
+  });
+
+  it('counts an unreadable empty weight as different from the record', () => {
+    const { result } = renderHook(() => useWeightBalance(TEST_AIRCRAFT));
+
+    fill(result, { emptyWeightLb: '' });
+
+    expect(result.current.emptyOverridden).toBe(true);
+  });
 });
