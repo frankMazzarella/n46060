@@ -44,7 +44,15 @@ body {
   cursor: pointer;
 }
 
-.button:hover {
+/* Hover only where a pointer can hover. Touch browsers leave :hover stuck on after a tap. */
+@media (hover: hover) {
+  .button:hover {
+    background: var(--color-text);
+    color: var(--color-surface);
+  }
+}
+
+.button:active {
   background: var(--color-text);
   color: var(--color-surface);
 }
