@@ -1,4 +1,5 @@
 import type { Aircraft, Category } from '../../model';
+import '@fontsource/barlow/latin-700.css';
 import { CategoryToggle } from './CategoryToggle';
 import './Header.css';
 

@@ -8,10 +8,17 @@
   border-bottom: 2px solid var(--color-border-strong);
 }
 
+/* Styled like aircraft registration lettering: squared bold letters slanted 20 degrees. */
 .header__registration {
+  display: inline-block;
   margin: 0;
-  font-size: var(--text-xl);
+  font-family: 'Barlow', var(--font-ui);
+  font-size: 2.25rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   line-height: 1.1;
+  transform: skewX(-20deg);
+  transform-origin: bottom left;
 }
 
 .header__description {
